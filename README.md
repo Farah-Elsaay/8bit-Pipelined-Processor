@@ -6,12 +6,12 @@
 This project implements a simple **8-bit pipelined processor** based on a RISC-like Instruction Set Architecture (ISA).  
 The processor supports **32 instructions**, a **4-register file**, **stack operations**, **interrupt handling**, and both **direct** and **indirect** memory addressing modes.
 
-The design is written entirely in **VHDL/Verilog**, simulated using **ModelSim / Vivado / EDA Playground**, and verified using waveform analysis.
+The design is written entirely in **Verilog**, simulated using **ModelSim / Vivado / EDA Playground**, and verified using waveform analysis.
 
 ---
 
 ## 🎯 Objectives
-- Implement a fully functional **8-bit pipelined processor** (Von Neumann or Harvard).
+- Implement a fully functional **8-bit pipelined processor** (Harvard).
 - Design an **FSM-based control unit** with proper control signals.
 - Handle **resource sharing**, especially the unified memory module.
 - Implement **interrupts** and **stack operations**.
@@ -61,7 +61,7 @@ The processor supports **all 32 instructions**, including:
 ## 🛠 Implementation
 
 ### **Languages & Tools**
-- **Verilog / VHDL**  
+- **Verilog**  
 - **ModelSim / Vivado / EDA Playground**  
 - **GTKWave / ModelSim waveform viewer**
 
