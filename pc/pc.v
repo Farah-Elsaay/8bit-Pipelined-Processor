@@ -5,7 +5,8 @@ module pc_reg (
     input [7:0] pc_in,
     output reg [7:0] pc_out
 );
-    always @(posedge clk or negedge rst) begin
+    always @(posedge clk or negedge rst) 
+		begin
         if(~rst)
             pc_out <= 0;
         else 
