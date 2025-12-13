@@ -1,7 +1,7 @@
 module pc_reg ( 
     input clk,
 	input rst,
-	input enable , // it is complement
+	input enable , 
     input [7:0] pc_in,
     output reg [7:0] pc_out
 );
@@ -11,7 +11,7 @@ module pc_reg (
             pc_out <= 0;
         else 
 		begin
-            if(~enable)
+            if(enable)
 				pc_out <= pc_in;
         end
     end
