@@ -86,7 +86,7 @@ module Control_Unit (
 										rd_en  = 0;
 										wr_en_regf  = 0; 
 										is_ret  = 0; 
-										alu_control = 2'b000000; // (ALU = 0)
+										alu_control = 6'b000000; // (ALU = 0)
 										branch_taken_E = 0;
 										F_Save = 0;
 										F_Restore = 0;
@@ -108,7 +108,7 @@ module Control_Unit (
 										rd_en  = 0;
 										wr_en_regf  = 1; 
 										is_ret  = 0; 
-										alu_control = 2'b100000; // ALU = 32
+										alu_control = 6'b100000; // ALU = 32
 										branch_taken_E = 0;
 										F_Save = 1;
 										SP_Sel = 0; // decrement SP 
@@ -132,7 +132,7 @@ module Control_Unit (
 										rd_en  = 0;
 										wr_en_regf  = 0; 
 										is_ret  = 0; 
-										alu_control = 2'b000000; 
+										alu_control = 6'b000000; 
 										branch_taken_E = 0;
 										F_Save = 0;
 										F_Restore = 0;
@@ -146,11 +146,13 @@ module Control_Unit (
 
 												// NOP (Opcode 0)
 												4'b0000: begin
+													alu_control = 6'b000000; // 0
 						                            PC_Sel = 2'b00; // PC + 1
 						                        end
 												
 												// MOV (Opcode 1) - R[ra] ← R[rb]
 												4'b0001: begin
+													alu_control = 6'b000001; // 1
 						                            // write register file with RD2 value (R[rb])
 						                            ADDR_Sel = 2'b00; // write to ra
 						                            MUX_RDATA_Sel = 2'b01; // select RD2 (R[rb]) to write it in R[ra]
@@ -232,12 +234,14 @@ module Control_Unit (
 												4'b0111: begin
 						                            case (instr_ra)
 						                                2'b00: begin // PUSH: X[SP--] <- R[rb]
+						                                	alu_control = 6'b001010; // 10
 						                                    MUX_DMEM_WD_Sel = 2'b01; // data = R[rb] (read RD2)
 						                                    MUX_DMEM_A_Sel = 2'b01;  // address = SP (post-decrement)
 						                                    wr_en_dmem = 1'b1;
 						                                    PC_Sel = 2'b00;
 						                                end
 						                                2'b01: begin // POP: R[rb] <- X[++SP]
+						                                	alu_control = 6'b001011; // 11
 						                                	SP_Sel = 1'b1; // increment SP
 						                                    MUX_DMEM_A_Sel = 2'b10; // address = ++SP (pre-increment)
 						                                    MUX_OUT_Sel = 1'b0; // select data from memory
@@ -246,11 +250,13 @@ module Control_Unit (
 						                                    ADDR_Sel = 2'b01; // write to rb
 						                                    PC_Sel = 2'b00;
 						                                end
-						                                2'b10: begin // OUT: OUT.PORT <- R[rb]  
+						                                2'b10: begin // OUT: OUT.PORT <- R[rb] 
+						                                    alu_control = 6'b001100; // 12 
 														    PC_Sel = 2'b00;      // PC + 1
 														    OUT_PORT_sel=1'b1;
 						                                end
 						                                2'b11: begin // IN: R[rb] <- IN.PORT 
+						                                	alu_control = 6'b001101; // 13
 						                                    wr_en_regf = 1'b1;
 						                                    MUX_RDATA_Sel=2'b01;  //data from input port
 						                                    ADDR_Sel = 2'b01;     // write to rb
@@ -264,7 +270,7 @@ module Control_Unit (
 												4'b1000: begin
 													case (instr_ra)
 														2'b00: begin  // NOT (ALU = 14)
-															alu_control = 'b001110;
+															alu_control = 6'b001110;
 															wr_en_regf = 1'b1;
 															ADDR_Sel = 2'b01; // choose rb
 															MUX_OUT_Sel = 1; // choose alu output
@@ -275,7 +281,7 @@ module Control_Unit (
 														end
 
 														2'b01: begin  // NEG (ALU = 15)
-															alu_control = 'b001111;
+															alu_control = 6'b001111;
 															wr_en_regf = 1'b1;
 															ADDR_Sel = 2'b01; // choose rb
 															MUX_OUT_Sel = 1; // choose alu output
@@ -286,7 +292,7 @@ module Control_Unit (
 															RD2_Sel = 0; 							
 														end
 														2'b10: begin  // INC (ALU = 16)
-															alu_control = 'b010000;
+															alu_control = 6'b010000;
 															wr_en_regf = 1'b1;
 															ADDR_Sel = 2'b01; // choose rb
 															MUX_OUT_Sel = 1; // choose alu output
@@ -297,7 +303,7 @@ module Control_Unit (
 															RD2_Sel = 0;		
 														end
 														2'b11: begin  // DEC (ALU = 17)
-															alu_control = 'b010001;
+															alu_control = 6'b010001;
 															wr_en_regf = 1'b1;
 															ADDR_Sel = 2'b01; // choose rb
 															MUX_OUT_Sel = 1; // choose alu output
@@ -317,6 +323,7 @@ module Control_Unit (
 						                            branch_taken_E = 1'b0;
 						                            case (instr_brx)
 						                                2'b00: begin // JZ
+						                                	alu_control = 6'b010010; // 18
 						                                    if (flags[3] == 1'b1) begin   // Z=1
 						                                        alu_control = 6'b010111; // PASS RD2
 						                                        MUX_OUT_Sel = 1'b1; // ALU output
@@ -326,6 +333,7 @@ module Control_Unit (
 						                                    end else PC_Sel = 2'b00;
 						                                end
 						                                2'b01: begin // JN
+						                                	alu_control = 6'b010011; // 19
 						                                    if (flags[2] == 1'b1) begin    // N = 1
 						                                        alu_control = 6'b010111; // PASS RD2
 						                                        MUX_OUT_Sel = 1'b1; // ALU output
@@ -335,6 +343,7 @@ module Control_Unit (
 						                                    end else PC_Sel = 2'b00;
 						                                end
 						                                2'b10: begin // JC
+						                                	alu_control = 6'b010100; // 20
 						                                    if (flags[1] == 1'b1) begin    // C = 1
 						                                        alu_control = 6'b010111; // PASS RD2
 						                                        MUX_OUT_Sel = 1'b1; // ALU output
@@ -344,6 +353,7 @@ module Control_Unit (
 						                                    end else PC_Sel = 2'b00;
 						                                end
 						                                2'b11: begin // JV
+						                                	alu_control = 6'b010101; // 21
 						                                    if (flags[0] == 1'b1) begin    // V = 1
 						                                        alu_control = 6'b010111; // PASS RD2
 						                                        MUX_OUT_Sel = 1'b1; // ALU output
@@ -358,7 +368,7 @@ module Control_Unit (
 												
 												// LOOP (Opcode 10) :R[ra] <- R[ra] - 1; if result !=0 PC <- R[rb] else PC+1
 												4'b1010: begin
-						                            alu_control = 6'b010001; // decrement RA (ALU=17)
+						                            alu_control = 6'b010110; // 22
 						                            // branch decision 
 						                            if (flags[3] != 1'b0) begin
 						                                PC_Sel = 2'b11; // branch to R[rb]
@@ -376,7 +386,7 @@ module Control_Unit (
 												4'b1011: begin
 													case (instr_brx)
 														2'b00: begin  // JMP - PC ← R[rb]
-															alu_control = 2'b010111; // (ALU = 21) PASS RD2
+															alu_control = 6'b010111; // (ALU = 23) PASS RD2
 															MUX_OUT_Sel = 1; // choose alu output
 															PC_Sel = 2'b11; // jump to output
 															is_ret  = 0; 
@@ -389,7 +399,7 @@ module Control_Unit (
 															RD2_Sel = 0;
 														end
 														2'b01: begin  // CALL - X[SP--] ← PC+1; PC ← R[rb]
-															alu_control = 2'b011000; // (ALU = 22) PASS RD2
+															alu_control = 6'b011000; // (ALU = 24) PASS RD2
 															MUX_OUT_Sel = 1;  // choose alu output
 															PC_Sel = 2'b11; // jump to output
 															is_ret  = 0; 
@@ -416,7 +426,7 @@ module Control_Unit (
 															rd_en  = 1; 
 															wr_en_regf  = 1; 
 															is_ret  = 1; // indicate return
-															alu_control = 2'b011001; // (ALU = 23)
+															alu_control = 6'b011001; // (ALU = 25)
 															branch_taken_E = 0;
 															F_Save = 0;
 															F_Restore = 0;
@@ -433,7 +443,7 @@ module Control_Unit (
 															rd_en  = 1; 
 															wr_en_regf  = 1; 
 															is_ret  = 1; // indicate return
-															alu_control = 2'b011001; // (ALU = 23)
+															alu_control = 6'b011010; // (ALU = 26)
 															branch_taken_E = 0;
 															F_Save = 0;
 															F_Restore = 1; // restore flags
@@ -455,7 +465,7 @@ module Control_Unit (
 													rd_en  = 1;
 													wr_en_regf  = 1; 
 													is_ret  = 0; 
-													alu_control = 2'b011110; // (ALU = 30)
+													alu_control = 6'b011110; // (ALU = 30)
 													branch_taken_E = 0;
 													RD2_Sel = 0;
 												end
@@ -470,7 +480,7 @@ module Control_Unit (
 													rd_en  = 0;
 													wr_en_regf  = 0; 
 													is_ret  = 0; 
-													alu_control = 2'b011111; // (ALU = 31)
+													alu_control = 6'b011111; // (ALU = 31)
 													branch_taken_E = 0;
 													RD2_Sel = 0;
 												end
@@ -482,7 +492,7 @@ module Control_Unit (
 													rd_en  = 0;
 													wr_en_regf  = 0; 
 													is_ret  = 0; 
-													alu_control = 2'b000000; // (ALU = 0)
+													alu_control = 6'b000000; // (ALU = 0)
 													RD2_Sel = 0;
 												end
 												
@@ -507,7 +517,7 @@ module Control_Unit (
 									rd_en  = 0;
 									wr_en_regf  = 1; 
 									is_ret  = 0; 
-									alu_control = 2'b011011; // (ALU = 27)
+									alu_control = 6'b011011; // (ALU = 27)
 									branch_taken_E = 0;
 									F_Save = 0;
 									F_Restore = 0;
@@ -523,7 +533,7 @@ module Control_Unit (
 									rd_en  = 1;
 									wr_en_regf  = 1; 
 									is_ret  = 0; 
-									alu_control = 2'b011100; // (ALU = 28)
+									alu_control = 6'b011100; // (ALU = 28)
 									branch_taken_E = 0;
 									F_Save = 0;
 									F_Restore = 0;
@@ -537,7 +547,7 @@ module Control_Unit (
 									rd_en  = 0;
 									wr_en_regf  = 0; 
 									is_ret  = 0; 
-									alu_control = 2'b011101; // (ALU = 29)
+									alu_control = 6'b011101; // (ALU = 29)
 									branch_taken_E = 0;
 									F_Save = 0;
 									F_Restore = 0;
