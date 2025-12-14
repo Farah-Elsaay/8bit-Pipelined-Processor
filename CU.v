@@ -20,12 +20,12 @@ module Control_Unit (
 	output reg MUX_OUT_Sel,
 	output reg [1:0] PC_Sel,
 	output reg [1:0] ADDR_Sel,
-	output reg branch_taken_E;
-	output reg is_2byte_D;
-	output reg F_Save;
-	output reg F_Restore;
-	output reg SP_Sel;
-	output reg RD2_Sel;
+	output reg branch_taken_E,
+	output reg is_2byte_D,
+	output reg F_Save,
+	output reg F_Restore,
+	output reg SP_Sel,
+	output reg RD2_Sel,
 	output reg OUT_PORT_sel,
 
 	output reg wr_en_dmem, // Data memory write enable
@@ -35,7 +35,7 @@ module Control_Unit (
 
 	output reg is_ret,
 
-	output reg [5:0] alu_control,
+	output reg [5:0] alu_control
 
 );
 
@@ -103,7 +103,7 @@ module Control_Unit (
 										MUX_DMEM_WD_Sel =  2'b11; // PC
 										MUX_DMEM_A_Sel =  2'b01;  // SP
 										PC_Sel = 2'b10; // M[1]
-										ADDR_Sel = 2'b20; // SP
+										ADDR_Sel = 2'b10; // SP
 										wr_en_dmem = 1; 
 										rd_en  = 0;
 										wr_en_regf  = 1; 
@@ -119,7 +119,6 @@ module Control_Unit (
 									storage = opcode;
 									next_state = SECOND_BYTE; 
 									is_2byte_D = 1'b1 ; //sent to hazard unit to stall
-									end
 
 									// all sel must be set to zero here
 										MUX_RDATA_Sel =  2'b00; 
@@ -377,7 +376,7 @@ module Control_Unit (
 						                                PC_Sel = 2'b00;
 						                            end
 						                            MUX_RDATA_Sel=2'b10;
-						                            MUX_OUT_Sel=1'b01;
+						                            MUX_OUT_Sel=1'b1;
 						                            wr_en_regf = 1'b1; // write back decremented RA
 						                            ADDR_Sel = 2'b00; // write back to RA 
 						                        end
@@ -497,6 +496,7 @@ module Control_Unit (
 												end
 												
 											endcase
+									end
 				end	
 				SECOND_BYTE  :  begin
 								// we now have opcode in storage 
