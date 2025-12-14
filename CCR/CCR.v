@@ -8,29 +8,26 @@ module CCR
     input wire F_Restore,
 
 //Declaring output
-output reg [ 3 : 0 ] OUT
+output wire [ 3 : 0 ] OUT
 );
-
+reg [ 3 : 0 ] Current_Flags;
 reg [ 3 : 0 ] Stacked_flags;
 
 always@( posedge CLK or negedge RST )
     begin
         if( !RST )
             begin
-                OUT <= 4'b0;
+                Current_Flags <= 4'b0;
                 Stacked_flags <= 4'b0;
             end
         else if ( F_Save )
             begin
-                Stacked_flags <= IN;
+                Stacked_flags <= Current_Flags; //Saving the current flags
             end
-
-        else if ( F_Restore )
-            begin
-                OUT <= Stacked_flags;
-            end
-        
+            Current_Flags <= IN; //Storing the new coming flags
     end
+
+assign OUT = F_Restore ? Stacked_flags : Current_Flags;   
 
 
 endmodule 
