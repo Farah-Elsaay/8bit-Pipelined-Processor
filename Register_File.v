@@ -10,7 +10,8 @@ module Register_file(
     input wr_en,
 
     output [7:0] RD1,
-    output [7:0] RD2
+    output [7:0] RD2,
+    output [7:0] SP
     );
 
     reg [7:0] R [0:3];
@@ -22,6 +23,7 @@ module Register_file(
             R[1] <= 8'd0;
             R[2] <= 8'd0;
             R[3] <= 8'd255;    // Stack pointer initialization
+            SP <= 8'd255; 
         end else if (wr_en) begin
             R[ADDER] <= RDATA;
         end
@@ -33,3 +35,4 @@ module Register_file(
     assign SP = R[3];
 
 endmodule
+
