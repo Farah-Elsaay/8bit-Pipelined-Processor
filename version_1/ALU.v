@@ -93,6 +93,13 @@ module ALU (
                     neg               = alu_out[7];
                 end
 
+                'd22: begin // loop Instruction
+                    alu_out           = a - 1;
+                    zero              = ~|alu_out;
+                    neg               = alu_out[7];
+                end
+
+
                 default: begin
                     alu_out           = b;
                 end
