@@ -82,6 +82,7 @@ module CU (
 			F_Save = 1'b0;
 			F_Restore = 1'b0;
 			SP_INC = 1'b0;
+			OUT_PORT_sel=1'b0;
 			case (current_state)
 				IDLE   :  begin
 								if (~rst)
